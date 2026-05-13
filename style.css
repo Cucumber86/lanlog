@@ -1,0 +1,59 @@
+﻿/* ОБЩИЙ КОНТЕЙНЕР CRM */
+.logistic-container { font-family: Arial, sans-serif; padding: 20px 0; }
+
+/* ДВУХКОЛОНОЧНАЯ CRM-ФОРМА */
+.logistic-form { background: #f8f9fa; padding: 25px; border: 1px solid #dee2e6; border-radius: 6px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+.logistic-form-row { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 15px; }
+.logistic-form-col-3 { flex: 1; min-width: 200px; }
+.logistic-form-col-6 { flex: 1; min-width: 300px; background: #fff; padding: 20px; border: 1px solid #e9ecef; border-radius: 5px; }
+.logistic-form-col-6.col-supplier { border-left: 4px solid #007bff; }
+.logistic-form-col-6.col-client { border-left: 4px solid #28a745; }
+.logistic-form h3 { margin-top: 0; margin-bottom: 20px; font-size: 18px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+.logistic-form h4 { margin-top: 0; margin-bottom: 15px; font-size: 15px; color: #495057; display: flex; align-items: center; gap: 5px; }
+.logistic-form label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 13px; color: #495057; }
+.logistic-form input, .logistic-form select, .logistic-form textarea { width: 100%; padding: 8px 12px; margin-bottom: 12px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+.logistic-form textarea { resize: vertical; height: 60px; min-height: 60px; }
+.logistic-form input:focus, .logistic-form select:focus, .logistic-form textarea:focus { border-color: #80bdff; outline: 0; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
+
+/* СТИЛИ ОНЛАЙН-РЕДАКТИРОВАНИЯ И ПОИСКА */
+.logistic-search-box { background: #e8f0fe; padding: 12px 15px; border-radius: 5px; border: 1px solid #d2e3fc; margin-bottom: 15px; margin-top: 20px; }
+.logistic-search-input { width: 100%; max-width: 400px; padding: 8px 12px; font-size: 14px; border: 1px solid #1a73e8; border-radius: 4px; outline: none; }
+.ajax-edit-input { width: 100% !important; padding: 6px 10px !important; margin: 2px 0 !important; font-size: 13px !important; border: 1px solid #1a73e8 !important; border-radius: 4px !important; box-sizing: border-box !important; }
+.ajax-edit-textarea { width: 100% !important; padding: 6px 10px !important; margin: 2px 0 !important; font-size: 12px !important; border: 1px solid #1a73e8 !important; border-radius: 4px !important; box-sizing: border-box !important; height: 50px !important; min-height: 50px !important; }
+
+/* ТАБЛИЦА С ВЫРАВНИВАНИЕМ ВЛЕВО */
+.logistic-table { width: 100% !important; table-layout: fixed !important; border-collapse: collapse !important; margin-bottom: 20px; box-sizing: border-box; }
+.logistic-table th, .logistic-table td { border: 1px solid #dee2e6 !important; padding: 12px 10px !important; text-align: left !important; vertical-align: top !important; word-wrap: break-word !important; overflow-wrap: break-word !important; font-size: 14px !important; line-height: 1.4 !important; }
+.logistic-table th { background: #e9ecef !important; font-weight: bold !important; }
+
+/* ГЕОМЕТРИЯ КОЛОНОК */
+.col-date { width: 95px !important; } 
+.col-label { width: 135px !important; } 
+.col-num { width: 85px !important; } 
+.col-addr { width: auto !important; } 
+.col-act { width: 115px !important; text-align: center !important; }
+
+/* КНОПКИ И ДЕЙСТВИЯ */
+.btn-logistic { color: #fff; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; font-size: 14px; text-align: center; font-weight: bold; }
+.btn-primary { background: #007bff; } .btn-primary:hover { background: #0056b3; color:#fff; text-decoration:none;}
+.btn-danger { background: #dc3545; } .btn-danger:hover { background: #bd2130; color:#fff; text-decoration:none;}
+.btn-success { background: #28a745; } .btn-success:hover { background: #218838; color:#fff; text-decoration:none;}
+.btn-warning { background: #ffc107; color: #212529; } .btn-warning:hover { background: #e0a800; color:#212529; text-decoration:none;}
+.btn-secondary { background: #6c757d; } .btn-secondary:hover { background: #5a6268; color:#fff; text-decoration:none;}
+
+.action-btn-group { display: flex; gap: 5px; justify-content: center; align-items: center; }
+.btn-action-small { width: 28px; height: 28px; padding: 0; line-height: 26px; text-align: center; font-size: 12px; border-radius: 4px; display: inline-block; border: none; color: #fff; cursor: pointer; text-decoration: none; box-sizing: border-box; }
+
+/* МЕНЮ ЯРЛЫКОВ GMAIL */
+.gmail-badge { display: inline-block; padding: 5px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; position: relative; width: 100%; box-sizing: border-box; text-align: left !important; padding-right: 15px; }
+.gmail-badge::after { content: " ?"; position: absolute; right: 8px; top: 5px; color: inherit; }
+.badge-processing { background-color: #fce8e6; color: #d93025; border: 1px solid #fad2cf; } 
+.badge-delivery { background-color: #fef7e0; color: #e37400; border: 1px solid #feebb7; }   
+.badge-completed { background-color: #e6f4ea; color: #137333; border: 1px solid #ceead6; }  
+.badge-none { background-color: #f1f3f4; color: #5f6368; border: 1px solid #dadce0; }
+
+.label-dropdown { display: block; position: relative; padding-bottom: 5px; text-align: left !important; }
+.label-menu { display: none; position: absolute; top: 100%; left: 0; background: #fff; border: 1px solid #dadce0; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 999; width: 100%; min-width: 130px; padding: 5px 0; margin-top: -2px; list-style: none;}
+.label-menu li a { display: block; padding: 8px 12px; color: #333; text-decoration: none; font-size: 13px; text-align: left !important;}
+.label-menu li a:hover { background: #f1f3f4; text-decoration: none; }
+.label-dropdown:hover .label-menu { display: block; }
