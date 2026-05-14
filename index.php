@@ -1,7 +1,7 @@
 <?
 // 1. ИНИЦИАЛИЗАЦИЯ ЯДРА БИТРИКСА ДЛЯ ПРОВЕРКИ АВТОРИЗАЦИИ АДМИНИСТРАТОРА
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetTitle("Логистический комплекс ЛАНМАРК (Модульный CRM)");
+$APPLICATION->SetTitle("LANLOG Доставка");
 
 // 2. СТРОГАЯ ПРОВЕРКА ДОСТУПА
 global $USER;

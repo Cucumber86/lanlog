@@ -24,36 +24,7 @@ if (isset($_GET['ajax_action']) && $_GET['ajax_action'] == 'set_label') {
     die();
 }
 
-// 2. ФОНОВЫЙ AJAX-ОБРАБОТЧИК ДЛЯ ИНЛАЙН-РЕДАКТИРОВАНИЯ СТРОКИ ЗАЯВКИ
-if (isset($_POST['ajax_action']) && $_POST['ajax_action'] == 'save_order_row') {
-    $APPLICATION->RestartBuffer();
-    header('Content-Type: application/json');
-    
-    $elementID = intval($_POST['element_id']);
-    if ($elementID <= 0) {
-        echo json_encode(['success' => false, 'error' => 'Неверный ID элемента']);
-        die();
-    }
-    
-    $stmt = $pdo->prepare("UPDATE lanmark_logistic_orders SET order_number = ?, company_supplier = ?, supplier_address = ?, supplier_phone = ?, supplier_comment = ?, company_client = ?, client_address = ?, client_phone = ?, client_comment = ? WHERE id = ?");
-    $success = $stmt->execute([
-        trim($_POST['order_number']), 
-        trim($_POST['company_supplier']),
-        trim($_POST['supplier_address']), 
-        trim($_POST['supplier_phone']),
-        trim($_POST['supplier_comment']), 
-        trim($_POST['company_client']),
-        trim($_box['client_address']), 
-        trim($_POST['client_phone']),
-        trim($_POST['client_comment']), 
-        $elementID
-    ]);
-    
-    echo json_encode(['success' => $success]);
-    die();
-}
-
-// 3. ФОНОВЫЙ AJAX-ОБРАБОТЧИК ДЛЯ СОЗДАНИЯ НОВОЙ ЗАЯВКИ ИЗ МОДАЛЬНОГО ОКНА
+// 2. ФОНОВЫЙ AJAX-ОБРАБОТЧИК ДЛЯ СОЗДАНИЯ НОВОЙ ЗАЯВКИ ИЗ МОДАЛЬНОГО ОКНА (ОСТАВЛЕН ДЛЯ СОВМЕСТИМОСТИ)
 if (isset($_POST['ajax_action']) && $_POST['ajax_action'] == 'create_delivery') {
     $APPLICATION->RestartBuffer();
     header('Content-Type: application/json');
@@ -69,21 +40,13 @@ if (isset($_POST['ajax_action']) && $_POST['ajax_action'] == 'create_delivery') 
 
         $stmt = $pdo->prepare("INSERT INTO lanmark_logistic_orders (
             order_date, order_number, company_supplier, supplier_address, supplier_phone, supplier_comment, 
-            company_client, client_address, client_phone, client_comment, order_label, sort_order, is_archive
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'N')");
+            company_client, client_address, client_phone, client_comment, order_label, sort_order
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'NEW', ?)");
         
         $success = $stmt->execute([
-            trim($_POST['date']), 
-            trim($_POST['number']),
-            trim($_POST['company_supplier']), 
-            trim($_POST['supplier_address']), 
-            trim($_POST['supplier_phone']), 
-            trim($_POST['supplier_comment']),
-            trim($_POST['company_client']), 
-            trim($_POST['client_address']), 
-            trim($_POST['client_phone']), 
-            trim($_POST['client_comment']),
-            trim($_POST['label_status'] ?? 'NEW'),
+            trim($_POST['date']), trim($_POST['number']),
+            trim($_POST['company_supplier']), trim($_POST['supplier_address']), trim($_POST['supplier_phone']), trim($_POST['supplier_comment']),
+            trim($_POST['company_client']), trim($_POST['client_address']), trim($_POST['client_phone']), trim($_POST['client_comment']),
             $nextSort
         ]);
 
@@ -94,9 +57,8 @@ if (isset($_POST['ajax_action']) && $_POST['ajax_action'] == 'create_delivery') 
     die();
 }
 
-// 4. AJAX-ОБРАБОТЧИК ДЛЯ ПОЛУЧЕНИЯ ДАННЫХ ПОСТАВЩИКА ПРИ ВЫБОРЕ ИЗ СПИСКА
+// 3. AJAX-ОБРАБОТЧИК ДЛЯ ПОЛУЧЕНИЯ ДАННЫХ ПОСТАВЩИКА ПРИ ВЫБОРЕ ИЗ СПИСКА
 if (isset($_GET['ajax_action']) && $_GET['ajax_action'] == 'get_supplier_info') {
-    global $pdo, $APPLICATION;
     $APPLICATION->RestartBuffer();
     header('Content-Type: application/json');
     
@@ -116,6 +78,7 @@ if (isset($_GET['ajax_action']) && $_GET['ajax_action'] == 'get_supplier_info') 
             'name' => htmlspecialcharsbx($supplierData['name']),
             'address' => htmlspecialcharsbx($supplierData['address']),
             'phone' => htmlspecialcharsbx($supplierData['phone']),
+            'manager' => htmlspecialcharsbx($supplierData['manager']), // ДОБАВЛЕНО: передаем ФИО Менеджера из справочника
             'comment' => htmlspecialcharsbx($supplierData['comment'])
         ]);
     } else {

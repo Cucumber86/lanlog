@@ -26,12 +26,12 @@
 .logistic-table th, .logistic-table td { border: 1px solid #dee2e6 !important; padding: 12px 10px !important; text-align: left !important; vertical-align: top !important; word-wrap: break-word !important; overflow-wrap: break-word !important; font-size: 14px !important; line-height: 1.4 !important; }
 .logistic-table th { background: #e9ecef !important; font-weight: bold !important; }
 
-/* ГЕОМЕТРИЯ КОЛОНОК */
+/* GEOMETRY КОЛОНОК */
 .col-date { width: 95px !important; } 
 .col-label { width: 135px !important; } 
 .col-num { width: 85px !important; } 
 .col-addr { width: auto !important; } 
-.col-act { width: 115px !important; text-align: center !important; }
+.col-act { width: 135px !important; text-align: center !important; }
 
 /* КНОПКИ И ДЕЙСТВИЯ */
 .btn-logistic { color: #fff; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; font-size: 14px; text-align: center; font-weight: bold; }
@@ -65,9 +65,24 @@
 /* ИНТЕГРАЦИЯ СТИЛЕЙ ДЛЯ СОВРЕМЕННОГО МОДАЛЬНОГО ОКНА */
 .logistic-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(3px); }
 .logistic-modal-content { background-color: #fff; margin: 4% auto; padding: 25px; border: 1px solid #888; width: 70%; max-width: 850px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
 /* КЛАССЫ ДЛЯ НОВОЙ СВЕРХКОМПАКТНОЙ ПАНЕЛИ ДЕЙСТВИЙ */
 .modern-action-bar { display: inline-flex; align-items: center; gap: 4px; background: #f8fafc; border: 1px solid #cbd5e1; padding: 2px 4px; border-radius: 4px; box-sizing: border-box; }
 .btn-modern-act { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; border: none; text-decoration: none !important; font-size: 11px; cursor: pointer; transition: background 0.15s ease, color 0.15s ease; color: #fff !important; margin: 0 !important; box-sizing: border-box; }
 .sort-tower { display: flex; flex-direction: column; gap: 1px; justify-content: center; }
 .btn-tower-sort { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 11px; font-size: 8px; background: #64748b; color: #fff !important; text-decoration: none; border-radius: 2px; line-height: 11px; margin: 0 !important; }
 
+/* ЗАВЕРШЕНИЕ ДЕКОРАТИВНЫХ СТИЛЕЙ СОРТИРОВКИ (ИСПРАВЛЕНО) */
+.btn-tower-sort:hover { background: #475569; }
+
+/* ДОПОЛНЕНИЕ ДЛЯ ОБЕСПЕЧЕНИЯ СТАБИЛЬНОЙ МОБИЛЬНОЙ АДАПТИВНОСТИ */
+@media screen and (max-width: 768px) {
+    .logistic-modal-content { width: 92%; margin: 10% auto; padding: 15px; }
+    .logistic-form-row { flex-direction: column; gap: 10px; }
+    .logistic-form-col-6 { min-width: 100%; }
+    
+    /* Защита таблиц от вылезания за границы мобильного экрана */
+    .logistic-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .logistic-table { table-layout: auto !important; min-width: 650px; }
+    .logistic-search-input { max-width: 100%; }
+}
