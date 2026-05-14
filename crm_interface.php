@@ -167,26 +167,37 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
                 $dateKey = !empty($order['order_date']) ? date('d.m.Y', strtotime($order['order_date'])) : 'Дата не указана';
                 $groupedOrders[$dateKey][] = $order;
             }
-
-            $yandexDomain = "api-maps." . "yandex.ru";
-            $yandexVersion = "2.1";
-            $yandexKey = "d2dfaf47-545d-4840-99b7-462fa04e9113";
-            $yandexLang = "ru_RU";
-            $finalApiUrl = "https://" . $yandexDomain . "/" . $yandexVersion . "/?apikey=" . $yandexKey . "&lang=" . $yandexLang;
             ?>
-
-            <script src="<?=$finalApiUrl?>" type="text/javascript"></script>
 
             <? $dayIndex = 0; ?>
             <?foreach($groupedOrders as $dateBlock => $dayOrders):?>
-                <? $dayIndex++; ?>
+                <? 
+                $dayIndex++; 
+                
+                // PHP-сборщик: Собираем уникальные и непустые адреса этого конкретного дня доставок
+                $dayAddressesArray = [];
+                foreach($dayOrders as $order) {
+                    if(!empty($order['supplier_address'])) {
+                        $addr = trim($order['supplier_address']);
+                        if (!in_array($addr, $dayAddressesArray)) $dayAddressesArray[] = $addr;
+                    }
+                    if(!empty($order['client_address'])) {
+                        $addr = trim($order['client_address']);
+                        if (!in_array($addr, $dayAddressesArray)) $dayAddressesArray[] = $addr;
+                    }
+                }
+                // Упаковываем массив в JSON и безопасно кодируем для передачи в HTML-атрибут
+                $jsonAddresses = json_encode($dayAddressesArray, JSON_UNESCAPED_UNICODE);
+                $encodedAddresses = rawurlencode($jsonAddresses);
+                ?>
                 <div class="logistic-day-group" style="margin-bottom: 35px;">
                     
                     <div class="logistic-day-header" style="background: #334155; color: #fff; padding: 10px 15px; font-weight: bold; font-size: 15px; border-radius: 4px 4px 0 0; display: flex; justify-content: space-between; align-items: center;">
                         <span>📅 Счета на день: <?=$dateBlock?></span>
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <?if($showArchive == 'N'):?>
-                                <button type="button" class="btn-logistic js-toggle-map-btn" data-target="mapWrapper_<?=$dayIndex?>" style="font-size: 12px; padding: 4px 12px; background: #1a73e8; color: #fff !important; border: none; cursor: pointer; border-radius: 4px;">🗺️ Карта маршрута</button>
+                                <!-- Обновленная кнопка: содержит в себе все адреса за день -->
+                                <button type="button" class="btn-logistic js-toggle-map-btn" data-target="mapWrapper_<?=$dayIndex?>" data-addresses="<?=$encodedAddresses?>" style="font-size: 12px; padding: 4px 12px; background: #1a73e8; color: #fff !important; border: none; cursor: pointer; border-radius: 4px;">🗺️ Карта маршрута</button>
                             <?endif;?>
                             <a href="?print_day=<?=date('Y-m-d', strtotime($dateBlock))?>" target="_blank" class="btn-logistic btn-success" style="font-size: 12px; padding: 4px 12px; background: #28a745; color: #fff !important; text-decoration: none; border-radius: 4px;">🖨️ Печать дня</a>
                             <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 12px;">Всего: <?=count($dayOrders)?></span>
@@ -240,148 +251,94 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
                             <?endforeach;?>
                         </tbody>
                     </table>
-
-                    <?if($showArchive == 'N'):?>
-                        <div id="mapWrapper_<?=$dayIndex?>" style="display: none; width: 100%; border: 1px solid #ced4da; border-top: none; border-radius: 0 0 4px 4px; box-sizing: border-box;">
-                            <div id="dayMap_<?=$dayIndex?>" style="width:100%; height:360px; background:#f8f9fa; position: relative; overflow: hidden;"></div>
-                        </div>
-                        
-                        <script type="text/javascript">
-                            ymaps.ready(function() {
-                                const mapId = "dayMap_<?=$dayIndex?>";
-                                const myMap = new ymaps.Map(mapId, {
-                                    center: [55.76, 37.64],
-                                    zoom: 9,
-                                    controls: ['zoomControl', 'fullscreenControl']
-                                });
-
-                                const dayPoints = [];
-                                <? foreach($dayOrders as $order): ?>
-                                    <? if(!empty($order['supplier_address'])): ?>
-                                        <? 
-                                        $cleanAddr = trim($order['supplier_address']);
-                                        $cleanAddr = str_replace(["\r", "\n", '"', "'", '`', '\\'], ' ', $cleanAddr);
-                                        $cleanAddr = preg_replace('/\s+/', ' ', $cleanAddr);
-                                        ?>
-                                        dayPoints.push("<?=CUtil::JSEscape($cleanAddr)?>");
-                                    <? endif; ?>
-                                    <? if(!empty($order['client_address'])): ?>
-                                        <? 
-                                        $cleanAddr = trim($order['client_address']);
-                                        $cleanAddr = str_replace(["\r", "\n", '"', "'", '`', '\\'], ' ', $cleanAddr);
-                                        $cleanAddr = preg_replace('/\s+/', ' ', $cleanAddr);
-                                        ?>
-                                        dayPoints.push("<?=CUtil::JSEscape($cleanAddr)?>");
-                                    <? endif; ?>
-                                <? endforeach; ?>
-
-                                if (dayPoints.length >= 2) {
-                                    const geoCoordinates = [];
-
-                                    function geocodePoint(index) {
-                                        if (index >= dayPoints.length) {
-                                            if (geoCoordinates.length >= 2) {
-                                                const multiRoute = new ymaps.multiRouter.MultiRoute({
-                                                    referencePoints: geoCoordinates,
-                                                    params: { routingMode: 'auto' }
-                                                }, {
-                                                    boundsAutoApply: true,
-                                                    wayPointVisible: false 
-                                                });
-                                                myMap.geoObjects.add(multiRoute);
-                                                
-                                                document.getElementById("mapWrapper_<?=$dayIndex?>").setAttribute("data-map-loaded", "Y");
-                                                window["ymap_obj_" + "<?=$dayIndex?>"] = myMap;
-                                            }
-                                            return;
-                                        }
-
-                                        ymaps.geocode(dayPoints[index], { results: 1 }).then(function (res) {
-                                            const firstGeoObject = res.geoObjects.get(0);
-                                            if (firstGeoObject) {
-                                                const coords = firstGeoObject.geometry.getCoordinates();
-                                                geoCoordinates.push(coords);
-                                                
-                                                const placemark = new ymaps.Placemark(coords, {
-                                                    iconContent: index + 1
-                                                }, {
-                                                    preset: 'islands#blackCircleIcon'
-                                                });
-                                                myMap.geoObjects.add(placemark);
-                                            }
-                                            geocodePoint(index + 1);
-                                        }, function () {
-                                            geocodePoint(index + 1);
-                                        });
-                                    }
-
-                                    geocodePoint(0);
-                                }
-                            });
-                        </script>
-                    <?endif;?>
                 </div>
             <?endforeach;?>
         <?endif;?>
     <?endif;?>
-</div>
-<!-- СКРИПТЫ АВТОМАТИЗАЦИИ ИНТЕРФЕЙСА CRM -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
+</div> <!-- .logistic-container закрытие -->
+
+<!-- ФИНАЛЬНЫЙ СКРИПТ УПРАВЛЕНИЯ ИНТЕРФЕЙСОМ CRM -->
+<script type="text/javascript">
+window.addEventListener('DOMContentLoaded', function() {
+    
+    // =========================================================================
     // 1. УПРАВЛЕНИЕ МОДАЛЬНЫМ ОКНОМ СОЗДАНИЯ ДОСТАВКИ
+    // =========================================================================
     const modal = document.getElementById('deliveryModal');
-    const openBtn = document.getElementById('openModalBtn');
-    const closeBtn = document.getElementById('closeModalBtn');
-    const cancelBtn = document.getElementById('cancelModalBtn');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
     const ajaxForm = document.getElementById('ajaxOrderForm');
 
-    if (openBtn) {
-        openBtn.addEventListener('click', function() {
+    if (openModalBtn) {
+        openModalBtn.addEventListener('click', function() {
             if (modal) modal.style.display = 'block';
         });
     }
 
-    const closeModal = function() {
+    const closeModal = () => {
         if (modal) modal.style.display = 'none';
         if (ajaxForm) ajaxForm.reset();
         const manualBlock = document.getElementById('manualSupplierBlock');
         if (manualBlock) manualBlock.style.display = 'none';
+        const vError = document.getElementById('vError');
+        if (vError) vError.style.display = 'none';
     };
 
-    if (closeBtn) closeBtn.addEventListener('click', closeModal);
-    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
-    
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+    if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+
     window.addEventListener('click', function(e) {
         if (e.target === modal) closeModal();
     });
 
-    // 2. ИНТЕЛЛЕКТУАЛЬНЫЙ ТРИГГЕР ДЛЯ СЛУЖЕБНЫХ СПОЙЛЕРОВ КАРТ ДНЯ
+    // =========================================================================
+    // 2. МГНОВЕННЫЙ БЕЗОПАСНЫЙ ЭКСПОРТ АДРЕСОВ ДНЯ В ЯНДЕКС КАРТЫ ПРИ КЛИКЕ
+    // =========================================================================
     document.querySelectorAll('.js-toggle-map-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const targetId = this.getAttribute('data-target');
-            const wrapper = document.getElementById(targetId);
-            if (!wrapper) return;
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-            if (wrapper.style.display === 'none' || wrapper.style.display === '') {
-                wrapper.style.display = 'block';
-                this.style.background = '#0f172a';
-                
-                const dayIdx = targetId.split('_')[1];
-                const mapInstance = window["ymap_obj_" + dayIdx];
-                
-                if (mapInstance) {
-                    setTimeout(() => {
-                        mapInstance.container.fitToViewport();
-                    }, 50);
+            // Считываем JSON-массив адресов, который PHP упаковал в эту кнопку
+            const rawData = this.getAttribute('data-addresses');
+            if (!rawData) {
+                alert('Адреса для этого дня отсутствуют.');
+                return;
+            }
+
+            try {
+                const decodedData = decodeURIComponent(rawData);
+                const pointsArray = JSON.parse(decodedData);
+
+                if (!pointsArray || pointsArray.length < 2) {
+                    alert('Недостаточно адресов в текущем дне для генерации маршрутного листа.');
+                    return;
                 }
-            } else {
-                wrapper.style.display = 'none';
-                this.style.background = '#1a73e8';
+
+                // Кодируем каждую текстовую строку адреса для использования в GET URL
+                const encodedPoints = pointsArray.map(function(pt) {
+                    return encodeURIComponent(pt.trim());
+                });
+
+                // Склеиваем точки путевого листа через тильду ~ по стандарту Яндекса
+                const rtextParam = encodedPoints.join('~');
+                const yaDomain = "yandex." + "ru";
+                const finalYandexNavigatorUrl = "https://" + yaDomain + "/maps/?rtext=" + rtextParam + "&rtt=auto";
+
+                // Открываем готовый путевой лист в оригинальном навигаторе Яндекса в новой вкладке
+                window.open(finalYandexNavigatorUrl, '_blank');
+
+            } catch (err) {
+                console.error("Ошибка парсинга адресов дня:", err);
+                alert('Произошла ошибка при сборка маршрутного листа.');
             }
         });
     });
 
-    // 3. ИНТЕГРАЦИЯ АВТОЗАПОЛНЕНИЯ ПО СВЯЗКЕ ПОСТАВЩИКОВ
+    // =========================================================================
+    // 3. ИНТЕГРАЦИЯ АВТОЗАПОЛНЕНИЯ ПО СВЯЗКЕ ПОСТАВЩИКОВ В МОДАЛКЕ
+    // =========================================================================
     const supplierSelect = document.getElementById('modalSupplierSelect');
     const manualBlock = document.getElementById('manualSupplierBlock');
     const manualInput = document.getElementById('modal_company_supplier');
@@ -452,7 +409,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // =========================================================================
     // 4. ИНЛАЙН-РЕДАКТИРОВАНИЕ ТЕКСТОВЫХ ПОЛЕЙ ТАБЛИЦЫ
+    // =========================================================================
     const startInlineEdit = function(element) {
         if (element.querySelector('input') || element.querySelector('textarea')) return;
 
@@ -504,6 +463,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         element.innerText = newValue;
                         tr.style.backgroundColor = '#e8f5e9';
                         setTimeout(() => tr.style.backgroundColor = '', 500);
+
+                        // Если диспетчер изменил адрес, мягко перезагружаем страницу,
+                        // чтобы обновился JSON внутри кнопки «Карта маршрута»
+                        if (fieldName.includes('address')) {
+                            window.location.reload();
+                        }
                     } else {
                         alert('Ошибка сохранения изменений');
                         element.innerText = originalText;
@@ -527,14 +492,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    // Активация редактирования по клику на ячейку текста
     document.querySelectorAll('.edit-inline').forEach(element => {
         element.addEventListener('click', function() {
             startInlineEdit(this);
         });
     });
 
-    // Активация редактирования при нажатии кнопки-карандаша в панели действий
     document.querySelectorAll('.js-trigger-inline-edit').forEach(btn => {
         btn.addEventListener('click', function() {
             const tr = this.closest('tr');
@@ -545,7 +508,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 5. КЛИЕНТСКИЙ МГНОВЕННЫЙ ПОИСК ПО ЗАЯВКАМ
+    // =========================================================================
+    // 5. КЛИЕНТСКИЙ МГНОВЕННЫЙ ПОИСК ПО ЗАЯВКАМ ДНЯ
+    // =========================================================================
     const searchOrder = document.getElementById('orderSearch');
     if (searchOrder) {
         searchOrder.addEventListener('input', function() {
@@ -565,7 +530,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // =========================================================================
     // 6. КЛИЕНТСКИЙ МГНОВЕННЫЙ ПОИСК ПО СПРАВОЧНИКУ ПОСТАВЩИКОВ
+    // =========================================================================
     const searchSklad = document.getElementById('skladSearch');
     if (searchSklad) {
         searchSklad.addEventListener('input', function() {
