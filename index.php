@@ -15,8 +15,8 @@ $errorMsg = '';
 
 // 3. БЕЗОПАСНОЕ ПОДКЛЮЧЕНИЕ К ИЗОЛИРОВАННОЙ БАЗЕ ДАННЫХ ЧЕРЕЗ PDO
 try {
-    $dsn = "mysql:host=localhost;dbname=lanmark_logistics;charset=utf8";
-    $pdo = new PDO($dsn, "lanmark_logistics", "Nlluzjdc210986", [
+    $dsn = "mysql:host=localhost;dbname=;charset=utf8";
+    $pdo = new PDO($dsn, "", "", [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
